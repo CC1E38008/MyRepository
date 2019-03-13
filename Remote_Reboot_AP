@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+import paramiko
+import time
+
+IP_F = open('d:\\IP.txt', 'r')              #文件为IP.txt
+sourceInLines = IP_F.readlines()  #按行读出文件内容
+IP_F.close()
+IPaddr = []                                   #定义一个空列表，用来存储结果
+for line in sourceInLines:
+    temp1 = line.strip('\n')       #去掉每行最后的换行符'\n'
+    IPaddr.append(temp1)          #将上一步得到的列表添加到temp1中
+
+print (IPaddr[0])
+print ("ready to ", IPaddr[0])
+usr = "admin"
+pwd = "admin@huawei.com"
+prt = 22
+
+ssh_client = paramiko.SSHClient()
+ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
+ssh_client.connect(hostname=IPaddr[0],username=usr,password=pwd,port=prt)
+print ("Sucessfully login to ", IPaddr[0])
+#ip.close()
+command = ssh_client.invoke_shell() 
+command.send("reboot\n")
+command.send("y\n")
+command.send("q\n")
+time.sleep(1)
+
+output = command.recv(65535)
+print( output )
+ssh_client.close
