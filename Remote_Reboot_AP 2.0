@@ -1,32 +1,50 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Mar 13 11:18:11 2019
+
+@author: Administrator
+"""
+
 #!/usr/bin/env python
 import paramiko
 import time
 
-IP_F = open('d:\\IP.txt', 'r')              #文件为IP.txt
-sourceInLines = IP_F.readlines()  #按行读出文件内容
-IP_F.close()
-IPaddr = []                                   #定义一个空列表，用来存储结果
-for line in sourceInLines:
-    temp1 = line.strip('\n')       #去掉每行最后的换行符'\n'
-    IPaddr.append(temp1)          #将上一步得到的列表添加到temp1中
 
-print (IPaddr[0])
-print ("ready to ", IPaddr[0])
-usr = "admin"
-pwd = "admin@huawei.com"
-prt = 22
+IP_F = open('d:\\AP_IP_addr.txt', 'r')              #文件为IP.txt
 
-ssh_client = paramiko.SSHClient()
-ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
-ssh_client.connect(hostname=IPaddr[0],username=usr,password=pwd,port=prt)
-print ("Sucessfully login to ", IPaddr[0])
-#ip.close()
-command = ssh_client.invoke_shell() 
-command.send("reboot\n")
-command.send("y\n")
-command.send("q\n")
-time.sleep(1)
+for line_1 in IP_F.readlines():    #for循环读取文件每一排IP地址
+    IPaddr = line_1.strip()        #去除空格，赋值
+#不能精细操作数组，所以不能对WinError 10060 的抛出异常进行进一步处理，
+#如果要处理的话，这里必须按照1.1版本进行进一步优化，从而对列表中异常的元素进行处理
+    
+    print (IPaddr)
+    print ("ready to login", IPaddr)
+    usr = "admin"
+    pwd = "admin@huawei.com"
+    prt = 22
 
-output = command.recv(65535)
-print( output )
-ssh_client.close
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
+    ssh_client.connect(hostname=IPaddr,username=usr,password=pwd,port=prt)
+    print ("Sucessfully login to ", IPaddr)
+    command = ssh_client.invoke_shell() 
+    command.send("reboot\n")
+    command.send("y\n")
+    command.send("q\n")
+    time.sleep(1)
+
+    print(" *********************", IPaddr ," Echo LOG begin ************************* ")    
+    output = command.recv(65535)
+    print( output )
+    print(" *********************", IPaddr ,"Echo LOG end ************************* ")   
+    ssh_client.close
+    print("##############   another session is coming    ####################")
+          
+print(" ")
+print(" ")
+print(" ")
+print("============================================================")    
+print("Warning!!!   Reboot is completing !!!")    
+print("============================================================") 
+IP_F.close()    
+
